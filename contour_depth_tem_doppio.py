@@ -80,3 +80,4 @@ temp_cs=map.contourf(lon,lat,temp[min_diff_index][int(S_coordinate/0.025)],8,cma
 temp_cbar=map.colorbar(temp_cs,location='top',pad="5%")
 temp_cbar.set_label('c')
 plt.show()
+fig.savefig(out_png_path, format='png', dpi=300, pad_inches = 0)
