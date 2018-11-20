@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Mon Nov 12 11:27:15 2018
 
-This is a temporary script file.
+Draw contours and isothermal layers on the map
+
+
+@author: leizhao
 """
 import os
 import conda
