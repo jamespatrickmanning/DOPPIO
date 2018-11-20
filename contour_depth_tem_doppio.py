@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Nov 12 11:27:15 2018
-
 Draw contours and isothermal layers on the map
-
-
 @author: leizhao
 """
 import os
@@ -24,9 +21,10 @@ date_time='2018-11-12 12:00:00'
 S_coordinate=0.2 #the value is [0,1]
 #########################
 date_time=datetime.datetime.strptime(date_time,'%Y-%m-%d %H:%M:%S') # transform time format
+
 #find index of the nearest time about data
 for i in range(0,7):
-    url_time=(date_time-datetime.timedelta(hours=i)).strftime('%Y-%m-%d')#
+    url_time=(date_time-datetime.timedelta(hours=i)).strftime('%Y-%m-%d')
     url=zl.get_doppio_url(url_time)
     #get the data 
     nc=netCDF4.Dataset(url)
