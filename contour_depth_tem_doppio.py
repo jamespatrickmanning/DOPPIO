@@ -4,9 +4,7 @@ Created on Mon Nov 12 11:27:15 2018
 
 Draw contours and isothermal layers on the map
 
-
 @author: leizhao
-
 """
 import os
 import conda
@@ -61,10 +59,9 @@ for i in range(len(lons)):
         max_lat=max(lats[i])
     if max(lons[i])>max_lon:
         max_lon=max(lons[i])
-
+#find the nearest point, and record the index 
 min_distance=zl.dist(lat1=input_lat,lon1=input_lon,lat2=lats[0][0],lon2=lons[0][0])#set initial value
 index_1,index_2=0,0 #set the initial index of min_distance
-#find the nearest point, and record the index 
 for i in range(len(lons)):
     for j in range(len(lons[i])):
         if min_distance>zl.dist(lat1=input_lat,lon1=input_lon,lat2=lats[i][j],lon2=lons[i][j]):
