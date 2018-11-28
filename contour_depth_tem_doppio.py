@@ -26,7 +26,7 @@ input_date_time='2018-11-12 12:00:00'
 input_lat=41.784712
 input_lon=-69.231081
 input_depth=0   #If you enter 99999, the default output bottom temperature,enter 0 will output the temperature of surface
-
+output_path='/home/jmanning/Desktop/testout/doppio/'
 #########################
 date_time=datetime.datetime.strptime(input_date_time,'%Y-%m-%d %H:%M:%S') # transform time format
 #find index of the nearest time about data
@@ -119,5 +119,5 @@ else:
     citys=[str(round(point_temp,2))]
 plt.plot(x,y,'ro')
 plt.text(x[0]+12500,y[0]-25000,citys[0],bbox=dict(facecolor='yellow',alpha=0.5))
-plt.savefig('/home/jmanning/Desktop/testout/doppio/contour_depth_tem_doppio.png',dpi=300)
+plt.savefig(output_path+'contour_depth_tem_doppio.png',dpi=300)
 #plt.show()
