@@ -99,7 +99,7 @@ plt.clabel(dept_cs, inline = True, fontsize = 10)
 if 0<=S_coordinate<1:
     temp_cs=map.contourf(lon,lat,temp[min_diff_index][39-int(S_coordinate/0.025)],15,cmap=cm.StepSeq)
 elif S_coordinate==1:
-    temp_cs=map.contourf(lon,lat,temp[min_diff_index][39],10,cmap=cm.cm.StepSeq)
+    temp_cs=map.contourf(lon,lat,temp[min_diff_index][39],15,cmap=cm.cm.StepSeq)
 else:
     print ("the depth is out of the depth of bottom")
 temp_cbar=map.colorbar(temp_cs,location='right',pad="1%")
