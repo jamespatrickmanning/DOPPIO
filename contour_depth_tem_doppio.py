@@ -79,10 +79,15 @@ else:
 #creat map
 #Create a blank canvas       
 fig=plt.figure(figsize = (20, 20))
-fig.suptitle('DOPPIO model bottom temp(deg C) ',fontsize=24, fontweight='bold')
+fig.suptitle('DOPPIO model bottom temp(deg C) and depth(meter)',fontsize=35, fontweight='bold')
 
 #Draw contour lines and temperature maps in detail
-ax1=fig.add_axes([0.02,0.02,0.9,0.9])
+ax1=fig.add_axes([0.07,0.03,0.85,0.95])
+ax1.set_title(input_date_time, loc='center')
+ax1.axes.title.set_size(24)
+#ax12=ax1.twinx()
+#ax12.set_title('depth:m', loc='right')
+#ax12.axes.title.set_size(24)
 service = 'Ocean_Basemap'
 map=Basemap(llcrnrlat=input_lat-0.3,urcrnrlat=input_lat+0.3,llcrnrlon=input_lon-0.3,urcrnrlon=input_lon+0.3,\
             resolution='f',projection='tmerc',lat_0=input_lat,lon_0=input_lon,epsg = 4269)
@@ -90,10 +95,10 @@ map.arcgisimage(service=service, xpixels = 5000, verbose= False)
 
 #label the latitude and longitude
 parallels = np.arange(0.,90,0.1)
-map.drawparallels(parallels,labels=[1,0,0,0],fontsize=25,linewidth=0.0)
+map.drawparallels(parallels,labels=[1,0,0,0],fontsize=20,linewidth=0.0)
 # draw meridians
 meridians = np.arange(180.,360.,0.1)
-map.drawmeridians(meridians,labels=[0,0,0,1],fontsize=25,linewidth=0.0)
+map.drawmeridians(meridians,labels=[0,0,0,1],fontsize=20,linewidth=0.0)
 lon,lat=map(lons,lats)
 dept_clevs=range(0,1000,10)
 dept_cs=map.contour(lon,lat,doppio_depth,dept_clevs,colors='black')
@@ -104,13 +109,9 @@ elif S_coordinate==1:
     temp_cs=map.contourf(lon,lat,temp[min_diff_index][39],7)#,cmap=cm.StepSeq)
 else:
     print ("the depth is out of the depth of bottom")
-temp_cbar=map.colorbar(temp_cs,location='right',pad="1%")
-#temp_cbar.tick_params(labelsize=25)
-#plt.rcParams['font.family'] = 'Times New Roman'
-#plt.rcParams['font.size'] = 20
-#for l in temp_cbar.ax.yaxis.get_ticklabels():
-#    l.set_family('Times New Roman')
-temp_cbar.set_label('unit:C',size=25)
+temp_cbar=map.colorbar(temp_cs,location='right',size="5%",pad="1%")
+temp_cbar.set_label('deg C',size=25)
+temp_cbar.ax.set_yticklabels(temp_cbar.ax.get_yticklabels(), fontsize=20)
 if point_temp==9999:
     citys=['the depth is out of the bottom depth']
 else:
@@ -120,28 +121,28 @@ lon_point=[input_lon]
 x,y=map(lon_point,lat_point)
 plt.plot(x,y,'ro')
 plt.text(x[0]+0.02,y[0]-0.01,citys[0],bbox=dict(facecolor='yellow',alpha=0.5),fontsize =30)
-
-ax2=fig.add_axes([0.06,0.7,0.2,0.2])
+#indert a map that have mmore screen 
+ax2=fig.add_axes([0.09,0.68,0.2,0.2])
 #Build a map background
 map1=Basemap(llcrnrlat=int(min_lat),urcrnrlat=int(max_lat)+1,llcrnrlon=int(min_lon),urcrnrlon=int(max_lon)+1,\
             resolution='f',projection='tmerc',lat_0=(max_lat+min_lat)/2,lon_0=(max_lon+min_lon)/2,epsg = 4269)
 map1.arcgisimage(service=service, xpixels = 5000, verbose= False)
 
-# draw parallels.
+
 if 6>=max_lat-min_lat>2:
     step=1
 elif max_lat-min_lat>6:
     step=int((max_lat-min_lat)/5)
 else:
     step=0.5
+# draw parallels.
 parallels = np.arange(0.,90.,step)
-map1.drawparallels(parallels,labels=[1,0,0,0],fontsize=10,linewidth=0.0)
+map1.drawparallels(parallels,labels=[0,1,0,0],fontsize=10,linewidth=0.0)
 # draw meridians
 meridians = np.arange(180.,360.,step)
 map1.drawmeridians(meridians,labels=[0,0,0,1],fontsize=10,linewidth=0.0)
 x,y=map1(lon_point,lat_point)
 #Draw contour lines and temperature maps
-#drawcontour lines od depth 
 plt.plot(x,y,'ro')
 plt.savefig(output_path+'contour_depth_tem_doppio2.png',dpi=300)
 plt.show()
