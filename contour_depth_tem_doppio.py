@@ -27,6 +27,9 @@ input_lat=41.784712
 input_lon=-69.231081
 input_depth=0   #If you enter 99999, the default output bottom temperature,enter 0 will output the temperature of surface
 output_path='/home/jmanning/Desktop/testout/doppio/'
+addlon=0.3 # edges around point to include in the zoomed in plot
+addlat=0.3
+mod_points='yes' # do you want to post model grid nodes
 #########################
 date_time=datetime.datetime.strptime(input_date_time,'%Y-%m-%d %H:%M:%S') # transform time format
 #find index of the nearest time about data
