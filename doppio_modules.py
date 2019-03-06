@@ -3,6 +3,10 @@
 """
 Created on Wed Nov 21 09:10:47 2018
 
+
+feb27 2019
+update the method of calculate the layer_index in function of get doppio
+update the method of calculate the min,second small and third small distance and index
 @author: jmanning
 """
 
@@ -25,13 +29,14 @@ def get_doppio(lat=0,lon=0,depth=99999,time='2018-11-12 12:00:00'):
             url=zl.get_doppio_url(url_time)
             #get the data 
             nc=netCDF4.Dataset(url)
+            lons=nc.variables['lon_rho'][:]
+            lats=nc.variables['lat_rho'][:]
+            temp=nc.variables['temp']
+            doppio_time=nc.variables['time']
+            doppio_depth=nc.variables['h'][:]
+            doppio_rho=nc.variables['s_rho'][:]
         except:
             continue
-        lons=nc.variables['lon_rho'][:]
-        lats=nc.variables['lat_rho'][:]
-        temp=nc.variables['temp']
-        doppio_time=nc.variables['time']
-        doppio_depth=nc.variables['h'][:]
         min_diff_time=abs(datetime.datetime(2017,11,1,0,0,0)+datetime.timedelta(hours=int(doppio_time[0]))-date_time)
         min_diff_index=0
         for i in range(1,len(doppio_time)):
@@ -40,57 +45,44 @@ def get_doppio(lat=0,lon=0,depth=99999,time='2018-11-12 12:00:00'):
                 min_diff_time=diff_time
                 min_diff_index=i
         #calculate the min,second small and third small distance and index
-        min_distance=zl.dist(lat1=lat,lon1=lon,lat2=lats[0][0],lon2=lons[0][0])
-#        secondmin_distance=min_distance
-#        thirdmin_distance=min_distance
-#        
-        index_1,index_2=0,0
-        secondindex_1,secondindex_2=0,0
-        thirdindex_1,thirdindex_2=0,0
-        fourthindex_1,fourthindex_2=0,0
-        fifthindex_1,fifthindex_2=0,0
-#        sixthindex_1,sixthindex_2=0,0
-        for i in range(len(lons)):
-            for j in range(len(lons[i])):
-                distance=zl.dist(lat1=lat,lon1=lon,lat2=lats[i][j],lon2=lons[i][j])
-                if min_distance>=distance:
-#                    thirdmin_distance=secondmin_distance
-#                    secondmin_distance=min_distance
-                    min_distance=distance
-#                    sixthindex_1,sixthindex_2=fifthindex_1,fifthindex_2
-                    fifthindex_1,fifthindex_2=fourthindex_1,fourthindex_2
-                    fourthindex_1,fourthindex_2=thirdindex_1,thirdindex_2
-                    thirdindex_1,thirdindex_2=secondindex_1,secondindex_2
-                    secondindex_1,secondindex_2=index_1,index_2
-                    index_1,index_2=i,j
-                    
-        
-       
-        if depth==99999:
-            S_coordinate=1
-        else:
-            S_coordinate=float(depth)/float(doppio_depth[index_1][index_2])
-        if 0<=S_coordinate<1:
-            layer_index=39-int(S_coordinate/0.025)
-        elif S_coordinate==1:
-            layer_index=39
-        else:
-            return 9999
+        target_distance=zl.dist(lat1=lats[0][0],lon1=lons[0][0],lat2=lats[0][1],lon2=lons[0][1])
+        index_1,index_2=zl.find_nd(target=target_distance,lat=lat,lon=lon,lats=lats,lons=lons)
+
+        #calculate the optimal layer index
+        h_distance=depth+doppio_rho[0]*doppio_depth[index_1][index_2]  #specify the initial distanc of high
+        layer_index=0  #specify the initial layer index        
+        for i in range(len(doppio_rho)):
+            if abs(depth+doppio_rho[0]*doppio_depth[index_1][index_2])<=h_distance:
+                h_distance=depth+doppio_rho[i]*doppio_depth[index_1][index_2]
+                layer_index=i
+        if depth>doppio_depth[index_1][index_2]:
+            print ("the depth is out of the depth of bottom:"+str(doppio_depth[index_1][index_2]))
+        if index_1==0:
+            index_1=1
+        if index_1==len(lats)-1:
+            index_1=len(lats)-2
+        if index_2==0:
+            index_2=1
+        if index_2==len(lats[0])-1:
+            index_2=len(lats[0])-2
         point=[[lats[index_1][index_2],lons[index_1][index_2],temp[min_diff_index][layer_index][index_1][index_2]],\
-            [lats[secondindex_1][secondindex_2],lons[secondindex_1][secondindex_2],temp[min_diff_index][layer_index][secondindex_1][secondindex_2]],\
-            [lats[thirdindex_1][thirdindex_2],lons[thirdindex_1][thirdindex_2],temp[min_diff_index][layer_index][thirdindex_1][thirdindex_2]],\
-            [lats[fourthindex_1][fourthindex_2],lons[fourthindex_1][fourthindex_2],temp[min_diff_index][layer_index][fourthindex_1][fourthindex_2]],\
-            [lats[fifthindex_1][fifthindex_2],lons[fifthindex_1][fifthindex_2],temp[min_diff_index][layer_index][fifthindex_1][fifthindex_2]]]
+            [lats[index_1-1][index_2],lons[index_1-1][index_2],temp[min_diff_index][layer_index][index_1-1][index_2]],\
+            [lats[index_1+1][index_2],lons[index_1+1][index_2],temp[min_diff_index][layer_index][index_1+1][index_2]],\
+            [lats[index_1][index_2-1],lons[index_1][index_2-1],temp[min_diff_index][layer_index][index_1][index_2-1]],\
+            [lats[index_1][index_2+1],lons[index_1][index_2+1],temp[min_diff_index][layer_index][index_1][index_2+1]]]
+
         point_temp=fitting(point,lat,lon)
+        print(point_temp)
+
         if np.isnan(point_temp):
             continue
         if min_diff_time<datetime.timedelta(hours=1):
             break
-    return point_temp,index_1,index_2
+    return point_temp,layer_index
 
 def fitting(point,lat,lon):
 
-#表示矩阵中的值
+#represent the value of matrix
     ISum = 0.0
     X1Sum = 0.0
     X2Sum = 0.0
@@ -117,8 +109,8 @@ def fitting(point,lat,lon):
         X1YSum = X1YSum+x1i*yi
         X2YSum = X2YSum+x2i*yi
 
-# 进行矩阵运算
-# _mat1 设为 mat1 的逆矩阵
+#  matrix operations
+# _mat1 is the mat1 inverse matrix
     m1=[[ISum,X1Sum,X2Sum],[X1Sum,X1_2Sum,X1X2Sum],[X2Sum,X1X2Sum,X2_2Sum]]
     mat1 = np.matrix(m1)
     m2=[[YSum],[X1YSum],[X2YSum]]
@@ -126,7 +118,7 @@ def fitting(point,lat,lon):
     _mat1 =mat1.getI()
     mat3 = _mat1*mat2
 
-# 用list来提取矩阵数据
+# use list to get the matrix data
     m3=mat3.tolist()
     a0 = m3[0][0]
     a1 = m3[1][0]
@@ -134,3 +126,4 @@ def fitting(point,lat,lon):
     y = a0+a1*lat+a2*lon
 
     return y
+
