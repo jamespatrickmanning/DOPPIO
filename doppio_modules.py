@@ -6,7 +6,8 @@ Created on Wed Nov 21 09:10:47 2018
 
 feb27 2019
 update the method of calculate the layer_index in function of get doppio
-update the method of calculate the min,second small and third small distance and index
+March 6 2019
+update the method of calculate the nearest point with point
 @author: jmanning
 """
 
