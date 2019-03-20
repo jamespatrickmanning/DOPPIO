@@ -7,6 +7,7 @@ Created on Wed Nov 21 09:10:47 2018
 feb27 2019
 update the method of calculate the layer_index in function of get doppio
 update the method of calculate the min,second small and third small distance and index
+march 20: change the way to get temperature, that faster than before
 @author: jmanning
 """
 
