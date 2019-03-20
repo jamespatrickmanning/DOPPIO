@@ -7,7 +7,6 @@ Created on Wed Nov 21 09:10:47 2018
 feb27 2019
 update the method of calculate the layer_index in function of get doppio
 update the method of calculate the min,second small and third small distance and index
-march 20: change the way to get temperature, that faster than before
 @author: jmanning
 """
 
@@ -26,7 +25,12 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
     if not doppio_coordinnate(lat,lon):
         print('the lat and lon out of range in doppio')
         return np.nan,np.nan
-    date_time=datetime.datetime.strptime(time,'%Y-%m-%d %H:%M:%S') # transform time format
+    if type(time)==str:
+        date_time=datetime.datetime.strptime(time,'%Y-%m-%d %H:%M:%S') # transform time format
+    elif type(time)==datetime.datetime:
+        date_time=time
+    else:
+        print('check the type of input time in get_doppio')
     for m in range(0,7):
         try:
             url_time=(date_time-datetime.timedelta(days=m)).strftime('%Y-%m-%d')#
@@ -36,7 +40,9 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
             lons=nc.variables['lon_rho'][:]
             lats=nc.variables['lat_rho'][:]
             doppio_time=nc.variables['time']
-            doppio_rho=nc.variables['s_rho'][:]
+            doppio_rho=nc.variables['s_rho']
+            doppio_temp=nc.variables['temp']
+            doppio_h=nc.variables['h']
         except:
             continue
         min_diff_time=abs(datetime.datetime(2017,11,1,0,0,0)+datetime.timedelta(hours=int(doppio_time[0]))-date_time)
@@ -53,13 +59,13 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
         #calculate the optimal layer index
         layer_index=0  #specify the initial layer index
         if depth!='bottom':
-            h_distance=depth+doppio_rho[0]*nc.variables['h'][index_1][index_2]  #specify the initial distanc of high
+            h_distance=depth+doppio_rho[0]*doppio_h[index_1,index_2]  #specify the initial distanc of high
             for i in range(len(doppio_rho)):
-                if abs(depth+doppio_rho[0]*nc.variables['h'][index_1][index_2])<=h_distance:
-                    h_distance=depth+doppio_rho[i]*nc.variables['h'][index_1][index_2]
+                if abs(depth+doppio_rho[0]*doppio_h[index_1,index_2])<=h_distance:
+                    h_distance=depth+doppio_rho[i]*doppio_h[index_1,index_2]
                     layer_index=i
-                if depth>nc.variables['h'][index_1][index_2]:
-                    print ("the depth is out of the depth of bottom:"+str(nc.variables['h'][index_1][index_2]))
+                if depth>doppio_h[index_1,index_2]:
+                    print ("the depth is out of the depth of bottom:"+str(doppio_h[index_1,index_2]))
         if index_1==0:
             index_1=1
         if index_1==len(lats)-1:
@@ -69,22 +75,20 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
         if index_2==len(lats[0])-1:
             index_2=len(lats[0])-2
         while True:
-            point=[[lats[index_1][index_2],lons[index_1][index_2],nc.variables['temp'][min_diff_index][layer_index][index_1][index_2]],\
-            [lats[index_1-1][index_2],lons[index_1-1][index_2],nc.variables['temp'][min_diff_index][layer_index][index_1-1][index_2]],\
-            [lats[index_1+1][index_2],lons[index_1+1][index_2],nc.variables['temp'][min_diff_index][layer_index][index_1+1][index_2]],\
-            [lats[index_1][index_2-1],lons[index_1][index_2-1],nc.variables['temp'][min_diff_index][layer_index][index_1][index_2-1]],\
-            [lats[index_1][index_2+1],lons[index_1][index_2+1],nc.variables['temp'][min_diff_index][layer_index][index_1][index_2+1]]]
+            point=[[lats[index_1][index_2],lons[index_1][index_2],doppio_temp[min_diff_index,layer_index,index_1,index_2]],\
+            [lats[index_1-1][index_2],lons[index_1-1][index_2],doppio_temp[min_diff_index,layer_index,(index_1-1),index_2]],\
+            [lats[index_1+1][index_2],lons[index_1+1][index_2],doppio_temp[min_diff_index,layer_index,(index_1+1),index_2]],\
+            [lats[index_1][index_2-1],lons[index_1][index_2-1],doppio_temp[min_diff_index,layer_index,index_1,(index_2-1)]],\
+            [lats[index_1][index_2+1],lons[index_1][index_2+1],doppio_temp[min_diff_index,layer_index,index_1,(index_2+1)]]]
             break
         point_temp=fitting(point,lat,lon)
         if np.isnan(point_temp):
             continue
         if min_diff_time<datetime.timedelta(hours=1):
             break
-    return point_temp,nc.variables['h'][index_1][index_2]
-
+    return point_temp,doppio_h[index_1,index_2]
 
 def fitting(point,lat,lon):
-
 #represent the value of matrix
     ISum = 0.0
     X1Sum = 0.0
