@@ -2,19 +2,22 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov 21 09:10:47 2018
+@author: Lei Zhao with help from JiM and Vitalii
 
+Modifications by Lei Zhao Feb 27 2019
+-updates the method of calculate the layer_index in function of get doppio
+-updated the method of calculate the min,second small and third small distance and index
 
-feb27 2019
-update the method of calculate the layer_index in function of get doppio
-update the method of calculate the min,second small and third small distance and index
-march 20
-update the way to get temperature.
-@author: jmanning
+Modifications by lei Zhao Mar 20, 2019
+-updated the way to get temperature quicker
+
+Modifications by JiM Mar 21, 2019
+-just added some more documentation and spelling changes
 """
 
 import netCDF4
 import datetime
-import zlconversions as zl
+import zlconversions as zl  # this is a set of Lei Zhao's functions that must be in same folder 
 import numpy as np
 
 def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00',fortype='temperature'):
@@ -25,7 +28,7 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00',fortype='te
     the module only output the temperature of point location
     if fortype ='temperature',only return temperature, else return temperature and depth
     """
-    if not doppio_coordinnate(lat,lon):
+    if not doppio_coordinate(lat,lon):
         print('the lat and lon out of range in doppio')
         return np.nan,np.nan
     if type(time)==str:
@@ -140,7 +143,7 @@ def fitting(point,lat,lon):
 
     return y
 
-def doppio_coordinnate(lat,lon):
+def doppio_coordinate(lat,lon):
     f1=-0.8777722604596849*lat-lon-23.507489034447012>=0
     f2=-1.072648270137022*lat-40.60872567829448-lon<=0
     f3=1.752828434063416*lat-131.70051451008493-lon>=0
