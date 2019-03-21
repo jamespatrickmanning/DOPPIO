@@ -17,12 +17,13 @@ import datetime
 import zlconversions as zl
 import numpy as np
 
-def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
+def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00',fortype='temperature'):
     """
     notice:
         the format of time is like "%Y-%m-%d %H:%M:%S" this time is utctime 
         the depth is under the bottom depth
     the module only output the temperature of point location
+    if fortype ='temperature',only return temperature, else return temperature and depth
     """
     if not doppio_coordinnate(lat,lon):
         print('the lat and lon out of range in doppio')
@@ -88,7 +89,10 @@ def get_doppio(lat=0,lon=0,depth='bottom',time='2018-11-12 12:00:00'):
             continue
         if min_diff_time<datetime.timedelta(hours=1):
             break
-    return point_temp,doppio_h[index_1,index_2]
+    if fortype=='temperature':
+        return point_temp
+    else:
+        return point_temp,doppio_h[index_1,index_2]
 
 def fitting(point,lat,lon):
 #represent the value of matrix
