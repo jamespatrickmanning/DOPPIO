@@ -1,4 +1,7 @@
 # DOPPIO
+There are two routines "get_doppio_test.py" and "get_doppio_test2.py" which access DOPPIO temperatures.
+The latter one uses Lei Zhao's "fitting" method to interpolate multiple nearby nodes.
+
 contour_depth_tem_doppio
 Draw contours and isothermal layers on the map
 STEP:
